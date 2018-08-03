@@ -8,6 +8,8 @@ var request = require('request');
 var fs = require("fs");
 var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
+var spotifySong = "The Sign";
+var movieURL = "https://www.omdbapi.com/?t=Mr.+Nobody&y=&plot=short&apikey=trilogy"
 
 // FUNCTIONS
 //************************************************************************************************************
@@ -40,6 +42,26 @@ function displaySpotify() {
         });
 }
 
+function displayOMDB() {
+    request(movieURL, function (error, response, body) {
+        if (error) {
+            console.log('error:', error); // Print the error if one occurred
+            console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+        } else {
+            console.log(
+                "\n" + "Title: " + JSON.parse(body).Title + "\n" +
+                "\nYear Released: " + JSON.parse(body).Year + "\n" +
+                "\n" + JSON.parse(body).Ratings[0].Source + ": " + JSON.parse(body).Ratings[0].Value + "\n" +
+                "\n" + JSON.parse(body).Ratings[1].Source + ": " + JSON.parse(body).Ratings[1].Value + "\n" +
+                "\nCountry: " + JSON.parse(body).Country + "\n" +
+                "\nLangauge: " + JSON.parse(body).Language + "\n" +
+                "\nPlot: " + JSON.parse(body).Plot + "\n" +
+                "\nCast: " + JSON.parse(body).Actors
+            );
+        }
+    });
+}
+
 // MAIN PROCESS
 //************************************************************************************************************
 if (process.argv[2] === "my-tweets") {
@@ -49,72 +71,46 @@ if (process.argv[2] === "my-tweets") {
 } else if (process.argv[2] === "spotify-this-song") {
 
     if (process.argv[3]) {
-        var spotifySong = process.argv[3];
+        spotifySong = process.argv[3];
         displaySpotify();
     } else {
-        var spotifySong = "The Sign";
         displaySpotify();
     }
-    
+
 } else if (process.argv[2] === "movie-this") {
+
     if (process.argv[3]) {
-        var movieURL = "https://www.omdbapi.com/?t=" + process.argv[3] + "&y=&plot=short&apikey=trilogy"
-        request(movieURL, function (error, response, body) {
-            if (error) {
-                console.log('error:', error); // Print the error if one occurred
-                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-            } else {
-                console.log(
-                    "\n" + "Title: " + JSON.parse(body).Title + "\n" +
-                    "\nYear Released: " + JSON.parse(body).Year + "\n" +
-                    "\n" + JSON.parse(body).Ratings[0].Source + ": " + JSON.parse(body).Ratings[0].Value + "\n" +
-                    "\n" + JSON.parse(body).Ratings[1].Source + ": " + JSON.parse(body).Ratings[1].Value + "\n" +
-                    "\nCountry: " + JSON.parse(body).Country + "\n" +
-                    "\nLangauge: " + JSON.parse(body).Language + "\n" +
-                    "\nPlot: " + JSON.parse(body).Plot + "\n" +
-                    "\nCast: " + JSON.parse(body).Actors
-                );
-            }
-        });
+        movieURL = "https://www.omdbapi.com/?t=" + process.argv[3] + "&y=&plot=short&apikey=trilogy"
+        displayOMDB();
     } else {
-        request("https://www.omdbapi.com/?t=Mr.+Nobody&y=&plot=short&apikey=trilogy", function (error, response, body) {
-            if (error) {
-                console.log('error:', error); // Print the error if one occurred
-                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-            } else {
-                console.log(
-                    "\n" + "Title: " + JSON.parse(body).Title + "\n" +
-                    "\nYear Released: " + JSON.parse(body).Year + "\n" +
-                    "\n" + JSON.parse(body).Ratings[0].Source + ": " + JSON.parse(body).Ratings[0].Value + "\n" +
-                    "\n" + JSON.parse(body).Ratings[1].Source + ": " + JSON.parse(body).Ratings[1].Value + "\n" +
-                    "\nCountry: " + JSON.parse(body).Country + "\n" +
-                    "\nLangauge: " + JSON.parse(body).Language + "\n" +
-                    "\nPlot: " + JSON.parse(body).Plot + "\n" +
-                    "\nCast: " + JSON.parse(body).Actors
-                );
-            }
-        });
+        displayOMDB();
     }
 
 } else if (process.argv[2] === "do-what-it-says") {
     fs.readFile("random.txt", "utf8", function (error, randomCommand) {
         if (error) {
-            return console.log(error);
-        }
-        console.log(randomCommand);
-        var randomCommandArr = randomCommand.split(",");
-        console.log(randomCommandArr);
-        if (randomCommandArr[0] === "spotify-this-song") {
-            spotify
-                .search({ type: "track", query: randomCommandArr[1] })
-                .then(function (response) {
-                    console.log(JSON.stringify(response.tracks.items));
-                })
-                .catch(function (err) {
-                    console.log(err);
-                });
+            return console.log("Error: " + error);
         } else {
-            console.log("Sorry, I don't recognize that command! My developer must be slacking!!")
+            var randomCommandArr = randomCommand.split(",");
+            if (randomCommandArr[0] === "my-tweets") {
+                displayTweets();
+            } else if (randomCommandArr[0] === "spotify-this-song") {
+                if (randomCommandArr[1]) {
+                    spotifySong = randomCommandArr[1];
+                    displaySpotify();
+                } else {
+                    displaySpotify();
+                }
+            } else if (randomCommandArr[0] === "movie-this") {
+                if (randomCommandArr[1]) {
+                    movieURL = "https://www.omdbapi.com/?t=" + randomCommandArr[1] + "&y=&plot=short&apikey=trilogy"
+                    displayOMDB();
+                } else {
+                    displayOMDB();
+                }
+            } else {
+                console.log("Sorry, I don't recognize that command! My developer must be slacking!!")
+            }
         }
     });
 } else {
