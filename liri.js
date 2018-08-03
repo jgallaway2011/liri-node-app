@@ -2,11 +2,12 @@
 //************************************************************************************************************
 require("dotenv").config();
 var keys = require("./keys.js");
+var Twitter = require('twitter');
 var Spotify = require('node-spotify-api');
 var request = require('request');
 var fs = require("fs");
 var spotify = new Spotify(keys.spotify);
-// var client = new Twitter(keys.twitter);
+var client = new Twitter(keys.twitter);
 
 // FUNCTIONS
 //************************************************************************************************************
@@ -16,11 +17,17 @@ var spotify = new Spotify(keys.spotify);
 // MAIN PROCESS
 //************************************************************************************************************
 if (process.argv[2] === "my-tweets") {
-    var params = { screen_name: "jpg_class_account" };
+    var params = { screen_name: "ClassJpg" };
     client.get('statuses/user_timeline', params, function (error, tweets, response) {
-        if (!error) {
-            console.log(tweets);
-            console.log(response);
+        if (error) {
+            console.log(error);
+            // console.log(response);
+        } else {
+            for (i = 0; i < tweets.length; i++) {
+                console.log("-----------------------------------------------------------------------");
+                console.log("Tweet " + (tweets.length - i) + " of " + tweets.length + ": " + tweets[i].text + "\nCreated At: " + tweets[i].created_at); 
+            }
+            console.log("-----------------------------------------------------------------------");
         }
     });
 } else if (process.argv[2] === "spotify-this-song") {
