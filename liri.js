@@ -34,8 +34,12 @@ function displaySpotify() {
     spotify
         .search({ type: 'track', query: spotifySong })
         .then(function (response) {
-            // console.log(JSON.stringify(response));
-            console.log(response.tracks.items[0]);
+            // console.log(response.tracks.items[0].album);
+            console.log("\nArtist(s): " + response.tracks.items[0].artists[0].name + "\n" +
+                "\nSong: " + response.tracks.items[0].name + "\n" +
+                "\nPreview: " + response.tracks.items[0].preview_url + "\n" +
+                "\nAlbum: " + response.tracks.items[0].album.name
+            );
         })
         .catch(function (err) {
             console.log(err);
@@ -49,7 +53,7 @@ function displayOMDB() {
             console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
         } else {
             console.log(
-                "\n" + "Title: " + JSON.parse(body).Title + "\n" +
+                "\nTitle: " + JSON.parse(body).Title + "\n" +
                 "\nYear Released: " + JSON.parse(body).Year + "\n" +
                 "\n" + JSON.parse(body).Ratings[0].Source + ": " + JSON.parse(body).Ratings[0].Value + "\n" +
                 "\n" + JSON.parse(body).Ratings[1].Source + ": " + JSON.parse(body).Ratings[1].Value + "\n" +
