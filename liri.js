@@ -10,6 +10,7 @@ var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
 var spotifySong = "The Sign";
 var movieURL = "https://www.omdbapi.com/?t=Mr.+Nobody&y=&plot=short&apikey=trilogy"
+var commandRequest = process.argv[2];
 
 // FUNCTIONS
 //************************************************************************************************************
@@ -22,10 +23,17 @@ function displayTweets() {
             console.log(response);
         } else {
             for (i = 0; i < tweets.length; i++) {
-                console.log("-----------------------------------------------------------------------");
-                console.log("Tweet " + (tweets.length - i) + " of " + tweets.length + ": " + tweets[i].text + "\nCreated At: " + tweets[i].created_at);
+                if (i >= 1) {
+                    dataOutPut = "\nTweet " + (tweets.length - i) + " of " + tweets.length + ": " + tweets[i].text + "\nCreated At: " + tweets[i].created_at +
+                    "\n---------------------------------------------------------------------------------------------------------------------------------";
+                    logOutPut();
+                } else {
+                    dataOutPut = "\n" + commandRequest + "\n---------------------------------------------------------------------------------------------------------------------------------" +
+                        "\nTweet " + (tweets.length - i) + " of " + tweets.length + ": " + tweets[i].text + "\nCreated At: " + tweets[i].created_at +
+                    "\n";
+                    logOutPut();
+                }
             }
-            console.log("-----------------------------------------------------------------------");
         }
     });
 }
@@ -34,12 +42,13 @@ function displaySpotify() {
     spotify
         .search({ type: 'track', query: spotifySong })
         .then(function (response) {
-            // console.log(response.tracks.items[0].album);
-            console.log("\nArtist(s): " + response.tracks.items[0].artists[0].name + "\n" +
+            dataOutPut = "\n" + commandRequest + "\n---------------------------------------------------------------------------------------------------------------------------------" +
+                "\nArtist(s): " + response.tracks.items[0].artists[0].name + "\n" +
                 "\nSong: " + response.tracks.items[0].name + "\n" +
                 "\nPreview: " + response.tracks.items[0].preview_url + "\n" +
-                "\nAlbum: " + response.tracks.items[0].album.name
-            );
+                "\nAlbum: " + response.tracks.items[0].album.name + "\n" +
+                "---------------------------------------------------------------------------------------------------------------------------------";
+            logOutPut();
         })
         .catch(function (err) {
             console.log(err);
@@ -52,7 +61,7 @@ function displayOMDB() {
             console.log('error:', error); // Print the error if one occurred
             console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
         } else {
-            console.log(
+            dataOutPut = "\n" + commandRequest + "\n---------------------------------------------------------------------------------------------------------------------------------" +
                 "\nTitle: " + JSON.parse(body).Title + "\n" +
                 "\nYear Released: " + JSON.parse(body).Year + "\n" +
                 "\n" + JSON.parse(body).Ratings[0].Source + ": " + JSON.parse(body).Ratings[0].Value + "\n" +
@@ -60,19 +69,30 @@ function displayOMDB() {
                 "\nCountry: " + JSON.parse(body).Country + "\n" +
                 "\nLangauge: " + JSON.parse(body).Language + "\n" +
                 "\nPlot: " + JSON.parse(body).Plot + "\n" +
-                "\nCast: " + JSON.parse(body).Actors
-            );
+                "\nCast: " + JSON.parse(body).Actors + "\n" +
+                "---------------------------------------------------------------------------------------------------------------------------------";
+            logOutPut();
+        }
+    });
+}
+
+function logOutPut() {
+    fs.appendFile("log.txt", dataOutPut, function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(dataOutPut);
         }
     });
 }
 
 // MAIN PROCESS
 //************************************************************************************************************
-if (process.argv[2] === "my-tweets") {
+if (commandRequest === "my-tweets") {
 
     displayTweets();
 
-} else if (process.argv[2] === "spotify-this-song") {
+} else if (commandRequest === "spotify-this-song") {
 
     if (process.argv[3]) {
         spotifySong = process.argv[3];
@@ -81,7 +101,7 @@ if (process.argv[2] === "my-tweets") {
         displaySpotify();
     }
 
-} else if (process.argv[2] === "movie-this") {
+} else if (commandRequest === "movie-this") {
 
     if (process.argv[3]) {
         movieURL = "https://www.omdbapi.com/?t=" + process.argv[3] + "&y=&plot=short&apikey=trilogy"
@@ -90,7 +110,7 @@ if (process.argv[2] === "my-tweets") {
         displayOMDB();
     }
 
-} else if (process.argv[2] === "do-what-it-says") {
+} else if (commandRequest === "do-what-it-says") {
     fs.readFile("random.txt", "utf8", function (error, randomCommand) {
         if (error) {
             return console.log("Error: " + error);
