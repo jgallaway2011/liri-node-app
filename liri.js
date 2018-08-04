@@ -24,14 +24,19 @@ function displayTweets() {
         } else {
             for (i = 0; i < tweets.length; i++) {
                 if (i >= 1) {
-                    dataOutPut = "\nTweet " + (tweets.length - i) + " of " + tweets.length + ": " + tweets[i].text + "\nCreated At: " + tweets[i].created_at +
-                    "\n---------------------------------------------------------------------------------------------------------------------------------";
+                    if (i === tweets.length - 1) {
+                        dataOutPut = "\nTweet " + (tweets.length - i) + " of " + tweets.length + ": " + tweets[i].text + "\nCreated At: " + tweets[i].created_at +
+                            "\n---------------------------------------------------------------------------------------------------------------------------------";
+                    } else {
+                        dataOutPut = "\nTweet " + (tweets.length - i) + " of " + tweets.length + ": " + tweets[i].text + "\nCreated At: " + tweets[i].created_at + "\n";
+                    }
                     logOutPut();
+                    console.log(dataOutPut);
                 } else {
                     dataOutPut = "\n" + commandRequest + "\n---------------------------------------------------------------------------------------------------------------------------------" +
-                        "\nTweet " + (tweets.length - i) + " of " + tweets.length + ": " + tweets[i].text + "\nCreated At: " + tweets[i].created_at +
-                    "\n";
+                        "\nTweet " + (tweets.length - i) + " of " + tweets.length + ": " + tweets[i].text + "\nCreated At: " + tweets[i].created_at + "\n";
                     logOutPut();
+                    console.log(dataOutPut);
                 }
             }
         }
@@ -39,9 +44,13 @@ function displayTweets() {
 }
 
 function displaySpotify() {
+    if (process.argv[3]) {
+        spotifySong = process.argv[3];
+    }
     spotify
         .search({ type: 'track', query: spotifySong })
         .then(function (response) {
+
             dataOutPut = "\n" + commandRequest + "\n---------------------------------------------------------------------------------------------------------------------------------" +
                 "\nArtist(s): " + response.tracks.items[0].artists[0].name + "\n" +
                 "\nSong: " + response.tracks.items[0].name + "\n" +
@@ -56,6 +65,9 @@ function displaySpotify() {
 }
 
 function displayOMDB() {
+    if (process.argv[3]) {
+        movieURL = "https://www.omdbapi.com/?t=" + process.argv[3] + "&y=&plot=short&apikey=trilogy"
+    }
     request(movieURL, function (error, response, body) {
         if (error) {
             console.log('error:', error); // Print the error if one occurred
@@ -81,7 +93,8 @@ function logOutPut() {
         if (err) {
             console.log(err);
         } else {
-            console.log(dataOutPut);
+            if (commandRequest !== "my-tweets")
+                console.log(dataOutPut);
         }
     });
 }
@@ -94,21 +107,11 @@ if (commandRequest === "my-tweets") {
 
 } else if (commandRequest === "spotify-this-song") {
 
-    if (process.argv[3]) {
-        spotifySong = process.argv[3];
-        displaySpotify();
-    } else {
-        displaySpotify();
-    }
+    displaySpotify();
 
 } else if (commandRequest === "movie-this") {
 
-    if (process.argv[3]) {
-        movieURL = "https://www.omdbapi.com/?t=" + process.argv[3] + "&y=&plot=short&apikey=trilogy"
-        displayOMDB();
-    } else {
-        displayOMDB();
-    }
+    displayOMDB();
 
 } else if (commandRequest === "do-what-it-says") {
     fs.readFile("random.txt", "utf8", function (error, randomCommand) {
