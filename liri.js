@@ -1,20 +1,21 @@
 // VARIABLES
 //************************************************************************************************************
-require("dotenv").config();
-var keys = require("./keys.js");
-var Twitter = require('twitter');
-var Spotify = require('node-spotify-api');
-var request = require('request');
-var fs = require("fs");
-var spotify = new Spotify(keys.spotify);
-var client = new Twitter(keys.twitter);
-var spotifySong = "The Sign";
-var movieURL = "https://www.omdbapi.com/?t=Mr.+Nobody&y=&plot=short&apikey=trilogy"
-var commandRequest = process.argv[2];
+require("dotenv").config(); // This process is used to reference API KEYS without placing them in code
+var keys = require("./keys.js"); // This is saying that a file called keys.js with API linakge is required
+var Twitter = require('twitter'); // npm install twitter required
+var Spotify = require('node-spotify-api'); // npm install for spotify required
+var request = require('request'); // npm install request required
+var fs = require("fs"); // fs is required for this javascript
+var spotify = new Spotify(keys.spotify); // Link to API keys
+var client = new Twitter(keys.twitter); // Link to API keys
+var spotifySong = "The Sign"; // Default song for search
+var movieURL = "https://www.omdbapi.com/?t=Mr.+Nobody&y=&plot=short&apikey=trilogy" // Default movie for search
+var commandRequest = process.argv[2]; // Save node command in variable
 
 // FUNCTIONS
 //************************************************************************************************************
 
+// Function to pull tweets from Twitters and then display in the terminal as well as log.txt
 function displayTweets() {
     var params = { screen_name: "ClassJpg" };
     client.get('statuses/user_timeline', params, function (error, tweets, response) {
@@ -43,6 +44,7 @@ function displayTweets() {
     });
 }
 
+// Function to pull song info from Spotify and then display in the terminal as well as log.txt
 function displaySpotify() {
     if (process.argv[3]) {
         spotifySong = process.argv[3];
@@ -64,6 +66,7 @@ function displaySpotify() {
         });
 }
 
+// Function to pull movie info from OMDB and then display in the terminal as well as log.txt
 function displayOMDB() {
     if (process.argv[3]) {
         movieURL = "https://www.omdbapi.com/?t=" + process.argv[3] + "&y=&plot=short&apikey=trilogy"
@@ -88,6 +91,7 @@ function displayOMDB() {
     });
 }
 
+// Function called by all functions above (minus Twitter) to push data into console and log.txt
 function logOutPut() {
     fs.appendFile("log.txt", dataOutPut, function (err) {
         if (err) {
@@ -113,6 +117,7 @@ if (commandRequest === "my-tweets") {
 
     displayOMDB();
 
+// This will read a command saved in the file random.txt and run one fo the functions above to complete the task
 } else if (commandRequest === "do-what-it-says") {
     fs.readFile("random.txt", "utf8", function (error, randomCommand) {
         if (error) {
